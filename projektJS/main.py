@@ -1,6 +1,6 @@
 import sys
 
-import numpy as np
+import logika as l
 import pygame
 
 
@@ -30,7 +30,7 @@ COLORS = [
     (255, 255, 0) # 2
 ]
 
-class Przyciski():
+class Game():
     kolor_przycisku = (25, 190, 225)
     kolor_tekstu = (255, 255, 255)
     kolor_cienia = (75, 225, 255)
@@ -76,90 +76,42 @@ class Przyciski():
         screen.blit(text_img, (self.x + int(self.szerokosc/2) - int(text_len/2), self.y+5))
         return action
 
+    def rysuj_plansze(plansza):
+        for i in range(LICZBA_KOLUMN + 1):
+            for j in range(LICZBA_WIERSZY):
+                pygame.draw.rect(screen, (0, 0, 0), (
+                i * ROZMIAR_KWADRATU, j * ROZMIAR_KWADRATU + ROZMIAR_KWADRATU, ROZMIAR_KWADRATU, ROZMIAR_KWADRATU))
+                pygame.draw.circle(screen, COLORS[0], (int(i * ROZMIAR_KWADRATU + ROZMIAR_KWADRATU / 2),
+                                                       int(j * ROZMIAR_KWADRATU + ROZMIAR_KWADRATU + ROZMIAR_KWADRATU / 2)),
+                                   RADIUS)
+
+
 # tworze przyciski służące do wrzucania monet
 przycisk = []
 
-for i in range(0, LICZBA_KOLUMN+1):
-    temp = str(i+1)
-    przycisk.append(Przyciski(25+i*100, 5, temp))
+# LIST COMPREHENSIONS
+przycisk= [Game(25 + i * 100, 5, str(i + 1)) for i in range(0, LICZBA_KOLUMN + 1)]
 
 
-def rysuj_plansze(plansza):
-    for i in range(LICZBA_KOLUMN+1):
-        for j in range(LICZBA_WIERSZY):
-            pygame.draw.rect(screen, (0, 0, 0), (i*ROZMIAR_KWADRATU, j*ROZMIAR_KWADRATU + ROZMIAR_KWADRATU, ROZMIAR_KWADRATU, ROZMIAR_KWADRATU))
-            pygame.draw.circle(screen, COLORS[0], (int(i*ROZMIAR_KWADRATU+ROZMIAR_KWADRATU/2), int(j*ROZMIAR_KWADRATU + ROZMIAR_KWADRATU+ROZMIAR_KWADRATU/2)), RADIUS)
-
-# klasa z metodami logicznymi dotyczącymi gry
-class cztery_w_rzedzie:
-    def __init__(self):
-        self.plansza = np.zeros((LICZBA_WIERSZY, LICZBA_KOLUMN))
-
-    def wrzuc_monete(self,wiersz1, kolumna1, gracz):
-        self.plansza[wiersz1][kolumna1] = gracz
-
-    def zapelniona_kolumna(self, kolumna1):
-        return self.plansza[LICZBA_WIERSZY - 1][kolumna1] == 0
-
-    def zapelniona_plansza(self):
-        counter = 0
-        for i in range(LICZBA_KOLUMN):
-            if not self.plansza[LICZBA_WIERSZY - 1][i] == 0:
-                counter +=1
-        if counter == 7:
-            return True
-        return False
-
-    def wolny_wiersz(self, kolumna1):
-        for i in range(LICZBA_WIERSZY):
-            if self.plansza[i][kolumna1] == 0:
-                return i
-
-    def wyswietl_plansze(self):
-        print(np.flip(self.plansza, 0))
-
-    def ktoWygral(self, gracz):
-        # poziome pozycje
-        for kol in range(LICZBA_KOLUMN - 3):
-            for wier in range(LICZBA_WIERSZY):
-                if self.plansza[wier][kol] == gracz and self.plansza[wier][kol + 1] == gracz and self.plansza[wier][kol + 2] == gracz and self.plansza[wier][kol + 3] == gracz:
-                    return True
-
-        # pionowe pozycje
-        for kol in range(LICZBA_KOLUMN):
-            for wier in range(LICZBA_WIERSZY - 3):
-                if self.plansza[wier][kol] == gracz and self.plansza[wier + 1][kol] == gracz and self.plansza[wier + 2][kol] == gracz and self.plansza[wier + 3][kol] == gracz:
-                    return True
-
-        # pozycje ukośna
-        for kol in range(LICZBA_KOLUMN - 3):
-            for wier in range(LICZBA_WIERSZY - 3):
-                if self.plansza[wier][kol] == gracz and self.plansza[wier + 1][kol + 1] == gracz and \
-                        self.plansza[wier + 2][kol + 2] == gracz and self.plansza[wier + 3][kol + 3] == gracz:
-                    return True
-        for kol in range(LICZBA_KOLUMN - 3):
-            for wier in range(3, LICZBA_WIERSZY):
-                if self.plansza[wier][kol] == gracz and self.plansza[wier - 1][kol + 1] == gracz and \
-                        self.plansza[wier - 2][kol + 2] == gracz and self.plansza[wier - 3][kol + 3] == gracz:
-                    return True
-
-app = cztery_w_rzedzie()
+app = l.cztery_w_rzedzie()
 koniec_gry = False
 tura = 0
 
-
+# tworzenie okna
 screen = pygame.display.set_mode(rozmiar)
-rysuj_plansze(app.plansza)
+gra = Game
+gra.rysuj_plansze(app.plansza)
 pygame.display.update()
 tekst1 = czcionka.render("WYBIERZ KOLUMNE", True, (255, 255, 255))
 screen.blit(tekst1, (0, 70))
 mazak = pygame.Rect(0, 700, 450, 120)
 alerty = pygame.Rect(100, 300, 500, 120)
 mazak2 = pygame.Rect(350, 70, 400, 30)
-reset = Przyciski(485, 720, "RESET")
+reset = Game(485, 720, "RESET")
 reset.szerokosc = 200
 reset.wysokosc = 50
 
+# petla gry
 while not koniec_gry:
     pygame.draw.rect(screen, (0, 0, 0), mazak)
     tekst2 = czcionka2.render(f"TURA GRACZA {tura + 1}", True, COLORS[tura +1])
@@ -170,19 +122,21 @@ while not koniec_gry:
         if przycisk[i].rysuj_przyciski():
             kolumna = i
 
+    # sprawdzenie czy przycisk resetu zostal wcisniety
     if reset.rysuj_przyciski():
         var = app.plansza
-        app = cztery_w_rzedzie()
+        app = l.cztery_w_rzedzie()
+        tura ^= 1
         screen = pygame.display.set_mode(rozmiar)
-        rysuj_plansze(app.plansza)
-        tekst1 = czcionka.render("WYBIERZ KOLUMNE", True, (255, 255, 255))
-        screen.blit(tekst1, (190, 70))
+        gra.rysuj_plansze(app.plansza)
+        screen.blit(tekst1, (0, 70))
         pygame.display.update()
 
     for zdarzenie in pygame.event.get():
         if zdarzenie.type == pygame.QUIT:
             sys.exit()
 
+    # sprawdzenie czy plansza jest zapelniona i wyswietlenie komunikatu
     if app.zapelniona_plansza():
         tekst4 = czcionka.render("REMIS", True, COLORS[0])
         pygame.draw.rect(screen, (25, 190, 225), alerty)
@@ -194,19 +148,19 @@ while not koniec_gry:
         pygame.display.update()
         pygame.time.wait(3000)
         var = app.plansza
-        app = cztery_w_rzedzie()
+        app = l.cztery_w_rzedzie()
         screen = pygame.display.set_mode(rozmiar)
-        rysuj_plansze(app.plansza)
-        screen.blit(tekst1, (190, 70))
+        gra.rysuj_plansze(app.plansza)
+        screen.blit(tekst1, (0, 70))
         pygame.display.update()
 
     if kolumna >= 0:
         if app.zapelniona_kolumna(kolumna):
             wiersz = app.wolny_wiersz(kolumna)
-            app.wrzuc_monete(wiersz, kolumna, tura + 1)
+            app.wrzuc_monete(kolumna, tura + 1)
             pygame.draw.circle(screen, COLORS[tura+1], (int(kolumna * ROZMIAR_KWADRATU + ROZMIAR_KWADRATU / 2),int((5-wiersz) * ROZMIAR_KWADRATU + ROZMIAR_KWADRATU + ROZMIAR_KWADRATU / 2)),RADIUS)
 
-            if app.ktoWygral(tura + 1):
+            if app.czyWygral(tura + 1):
                 pygame.draw.rect(screen, (0, 0, 0), mazak)
                 tekst2 = czcionka.render(f"GRACZ {tura + 1} WYGRYWA!", True, (0, 0, 0))
                 tekst3 = czcionka.render(f"GRATULACJE!", True, COLORS[tura+1])
@@ -220,10 +174,10 @@ while not koniec_gry:
                 pygame.display.update()
                 pygame.time.wait(3000)
                 var = app.plansza
-                app = cztery_w_rzedzie()
+                app = l.cztery_w_rzedzie()
                 screen = pygame.display.set_mode(rozmiar)
-                rysuj_plansze(app.plansza)
-                screen.blit(tekst1, (190, 70))
+                gra.rysuj_plansze(app.plansza)
+                screen.blit(tekst1, (0, 70))
                 pygame.display.update()
 
         else:
@@ -233,8 +187,6 @@ while not koniec_gry:
             pygame.time.wait(1000)
             pygame.draw.rect(screen, (0, 0, 0), mazak2)
             tura ^= 1
-
-
 
         app.wyswietl_plansze()
         tura ^= 1
