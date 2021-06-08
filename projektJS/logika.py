@@ -6,8 +6,8 @@ LICZBA_KOLUMN = 7
 
 class cztery_w_rzedzie:
     def __init__(self):
-        self.plansza = np.zeros((LICZBA_WIERSZY, LICZBA_KOLUMN))
-
+        # self.plansza = np.zeros((LICZBA_WIERSZY, LICZBA_KOLUMN))
+        self.plansza = [[0 for i in range(LICZBA_KOLUMN)] for i in range(LICZBA_WIERSZY)] # LIST COMPREHENSIONS
 
     def zapelniona_kolumna(self, kolumna1):
         return self.plansza[LICZBA_WIERSZY - 1][kolumna1] == 0
@@ -36,6 +36,7 @@ class cztery_w_rzedzie:
 
     def wyswietl_plansze(self):
         print(np.flip(self.plansza, 0))
+
 
     def czyWygral(self, gracz):
         # poziome pozycje
