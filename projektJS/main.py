@@ -88,9 +88,7 @@ class Game():
 
 # tworze przyciski służące do wrzucania monet
 przycisk = []
-
-# LIST COMPREHENSIONS
-przycisk= [Game(25 + i * 100, 5, str(i + 1)) for i in range(0, LICZBA_KOLUMN + 1)]
+przycisk= [Game(25 + i * 100, 5, str(i + 1)) for i in range(0, LICZBA_KOLUMN + 1)] # LIST COMPREHENSIONS
 
 
 app = l.cztery_w_rzedzie()
